@@ -7,8 +7,9 @@
 #include <bcm2835.h>
 
 template <typename Rep, typename Period>
-void sleepFor(std::chrono::duration<Rep, Period> dur) {
+void sleepFor(std::chrono::duration<Rep, Period> durBase) {
     using namespace std::chrono_literals;
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(durBase);
     auto secs = dur / 1s;
     auto nsecs = (dur - (secs * 1s)) / 1ns;
     const struct timespec ts{secs, nsecs};
@@ -101,7 +102,7 @@ int main() {
         }
         bcm2835_spi_writenb(reinterpret_cast<const char*>(buffer), transferSize);
         
-        sleepFor(1s / fps);
+        sleepFor(std::chrono::duration_cast<std::chrono::nanoseconds>(1s) / fps);
     }
     
     bcm2835_spi_end();
